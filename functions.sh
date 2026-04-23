@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-# ==============
-#    Functions
-# ==============
-
-# Telegram functions
 # upload_file
 upload_file() {
   local FILE="$1"
@@ -18,6 +13,7 @@ upload_file() {
 
   curl -s -F "document=@${FILE}" \
     -F "chat_id=${TG_CHAT_ID}" \
+    -F "message_thread_id=8" \
     -F "caption=${CAPTION}" \
     -F "parse_mode=markdown" \
     -F "disable_web_page_preview=true" \
@@ -29,6 +25,7 @@ send_msg() {
   local MESSAGE="$1"
   curl -s -X POST "https://api.telegram.org/bot$TG_BOT_TOKEN/sendMessage" \
     -d "chat_id=$TG_CHAT_ID" \
+    -d "message_thread_id=8" \
     -d "disable_web_page_preview=true" \
     -d "parse_mode=markdown" \
     -d "text=$MESSAGE"
@@ -50,23 +47,19 @@ install_ksu() {
   curl -LSs "$URL" | bash -s "$REF"
 }
 
-# ksu_included() function
-# Type: bool
+# ksu
 ksu_included() {
-  # if variant is not VNL then
-  # kernelsu is included!
   [[ $VARIANT != "VNL" ]]
   return $?
 }
 
-# susfs_included() function
-# Type: bool
+# susfs
 susfs_included() {
   [[ "$VARIANT" == "KSUS" ]]
   return $?
 }
 
-# simplify_gh_url <github-repository-url>
+# simplify_gh_url
 simplify_gh_url() {
   local URL="$1"
   echo "$URL" | sed "s|https://github.com/||g" | sed "s|.git||g"
@@ -94,17 +87,4 @@ EOF
   send_msg "$err_txt"
   upload_file "$WORKDIR/build.log"
   exit 1
-}
-
-# apply pershoot susfs patch
-pershoot_susfs() {
-  local f=$(mktemp)
-  local repo="https://gitlab.com/pershoot/susfs4ksu"
-  local ret
-
-  curl -s "$repo/commit/$1".patch | sed 's|kernel_patches/||g' > $f
-  patch -p1 < $f
-  ret=$?
-  rm -f $f
-  return $ret
 }

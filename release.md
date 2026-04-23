@@ -1,3 +1,11 @@
-### kirnal release - kver
-- Linux linux_version (android12-5.10-lts)
-- SUSFS ඞ susver
+### kernel release
+
+Feature:
+```
+- GKI2 (android12-5.10-lts)
+- KSU
+- SUSFS
+- Bore Scheduler
+- CASS Scheduler
+- Prefer-Silver Assist
+```
