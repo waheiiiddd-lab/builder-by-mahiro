@@ -5,12 +5,19 @@ on:
     inputs:
       TODO:
         type: string
+        default: "kernel"
       VARIANT:
         type: string
+        default: "KSU"
+      KERNELNAME:
+        type: string
+        default: "Altair"
+      KERNELBRANCH:
+        type: string
+        default: "android12-5.10-staging"
       LAST_BUILD:
         type: string
-      KERNEL_VERSION:
-        type: string
+        default: "false"
 
   workflow_dispatch:
     inputs:
@@ -29,31 +36,40 @@ on:
           - "VNL"
           - "KSU"
           - "KSUS"
-      KERNEL_VERSION:
-        description: Which kernel version do you want to build?
-        default: "5.10"
+      KERNELBRANCH:
+        description: "Kernel source branch"
+        required: true
+        default: "android12-5.10-staging"
         type: choice
         options:
-          - "6.6"
-          - "6.1"
-          - "5.10"
+          - lts
+          - test
+          - staging
+          - android_kernel_common-5.10
+          - android12-5.10-staging
+      KERNELNAME:
+        description: kernel Name
+        default: "Altair"
+        type: string
 
 env:
   MAN_DISABLE: true
   DEBIAN_FRONTEND: noninteractive
-  GIT_CLONE_PROTECTION_ACTIVE: false
-  TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }} # telegram chat id
-  TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }} # telegram bot token
-  GH_TOKEN: ${{ secrets.GH_TOKEN }} # github token
-  VARIANT: ${{ inputs.VARIANT }}
-  LAST_BUILD: ${{ inputs.LAST_BUILD }}
-  TODO: ${{ inputs.TODO }}
-  KVER: ${{ inputs.KERNEL_VERSION }}
+  BASE_NAME: Altair
+  
+  TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+  TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  VARIANT: ${{ inputs.VARIANT || 'KSU' }}
+  KERNELNAME: ${{ inputs.KERNELNAME || 'Altair' }}
+  KERNELBRANCH: ${{ inputs.KERNELBRANCH || 'android12-5.10-staging' }}
+  TODO: ${{ inputs.TODO || 'kernel' }}
+  LAST_BUILD: ${{ inputs.LAST_BUILD || 'false' }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -62,39 +78,17 @@ jobs:
 
       - name: Determine Build Status
         run: |
-          if [ "${{ toJson(github.event.inputs) }}" == "null" ]; then
-            echo "STATUS=RELEASE" >> $GITHUB_ENV
-          else
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "STATUS=BETA" >> $GITHUB_ENV
-          fi
-
-      - name: Validate Inputs and Secrets
-        run: |
-          _error() {
-              echo "❌ ERROR: $*"
-              let ret++
-          }
-
-          ret=0
-          # Check Secrets
-          if [[ -z "$TG_CHAT_ID" ]]; then
-            _error "Missing TG_CHAT_ID secret (Telegram Chat ID)"
-          fi
-          if [[ -z "$TG_BOT_TOKEN" ]]; then
-            _error "Missing TG_BOT_TOKEN secret (Telegram Bot Token)"
-          fi
-          if [[ -z "$GH_TOKEN" ]]; then
-            _error "Missing GH_TOKEN secret (GitHub PAT)"
-          fi
-
-          if [[ $ret -gt 0 ]]; then
-            exit $ret
+          else
+            echo "STATUS=RELEASE" >> $GITHUB_ENV
           fi
 
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y gh bc bison flex libssl-dev libelf-dev dwarves cpio
+          sudo apt-get install -y \
+            bc bison flex libssl-dev libelf-dev dwarves cpio aria2 zip unzip
           pip install lxml
 
       - name: Run Build Script
@@ -106,11 +100,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.BASE_NAME }}-${{ github.run_number }}
-          path: |
-            artifacts/*.zip
-
-      - name: Upload Info.txt artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: info-${{ github.run_number }}
-          path: artifacts/*.txt
+          path: ./*.zip
