@@ -20,7 +20,7 @@ ANYKERNEL_REPO="https://github.com/rinnsakaguchi/AnyKernel3"
 ANYKERNEL_BRANCH="master"
 GKI_RELEASES_REPO="https://github.com/rinnsakaguchi/Anisphia-Release"
 CLANG_BRANCH=""
-#CLANG_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/f60b8b55282f002f594f452ce22dfd6cf1fd7e3c/clang-r596125.tar.gz"
+CLANG_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/f60b8b55282f002f594f452ce22dfd6cf1fd7e3c/clang-r596125.tar.gz"
 
 make=$(command -v make)
 export make
@@ -66,16 +66,6 @@ case "$VARIANT" in
     error "Unknown VARIANT: $VARIANT"
     ;;
 esac
-
-log "Fetching latest clang URL..."
-
-if source <(curl -sL https://raw.githubusercontent.com/greenforce-project/greenforce_clang/refs/heads/main/get_latest_url.sh); then
-    log "Using latest clang from greenforce"
-    CLANG_URL="$LATEST_URL"
-else
-    error "Failed to fetch latest clang URL"
-    exit 1
-fi
 
 # Download Clang
 CLANG_DIR="$WORKDIR/clang"
@@ -168,11 +158,21 @@ fi
 
 # Clean old values
 sed -i '/CONFIG_HZ/d' "$DEFCONFIG"
+sed -i '/CONFIG_TCP_CONG_BBRPLUS/d' "$DEFCONFIG"
+sed -i '/CONFIG_DEFAULT_TCP_CONG/d' "$DEFCONFIG"
+sed -i '/CONFIG_CPU_FREQ_GOV_CONSERVATIVE/d' "$DEFCONFIG"
+sed -i '/CONFIG_CPU_FREQ_GOV_SCHEDHORIZON/d' "$DEFCONFIG"
 sed -i '/CONFIG_LTO_CLANG/d' "$DEFCONFIG"
 sed -i '/CONFIG_LTO_CLANG_THIN/d' "$DEFCONFIG"
 sed -i '/CONFIG_LTO_CLANG_FULL/d' "$DEFCONFIG"
 
 # Apply tuning config
+echo "CONFIG_HZ=300" >> "$DEFCONFIG"
+echo "CONFIG_HZ_300=y" >> "$DEFCONFIG"
+echo "CONFIG_DEFAULT_BBR=y" >> "$DEFCONFIG"
+echo "CONFIG_DEFAULT_TCP_CONG="bbr"" >> "$DEFCONFIG"
+echo "# CONFIG_CPU_FREQ_GOV_CONSERVATIVE is not set" >> "$DEFCONFIG"
+echo "# CONFIG_CPU_FREQ_GOV_SCHEDHORIZO is not set" >> "$DEFCONFIG"
 echo "CONFIG_LTO_CLANG=y" >> "$DEFCONFIG"
 echo "CONFIG_LTO_CLANG_THIN=y" >> "$DEFCONFIG"
 
