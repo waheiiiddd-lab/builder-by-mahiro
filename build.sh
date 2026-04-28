@@ -158,11 +158,20 @@ fi
 
 # Clean old values
 sed -i '/CONFIG_HZ/d' "$DEFCONFIG"
+sed -i '/CONFIG_HZ_250/d' "$DEFCONFIG"
+sed -i '/CONFIG_HZ_300/d' "$DEFCONFIG"
+sed -i '/CONFIG_DEFAULT_BBRPLUS/d' "$DEFCONFIG"
 sed -i '/CONFIG_LTO_CLANG/d' "$DEFCONFIG"
 sed -i '/CONFIG_LTO_CLANG_THIN/d' "$DEFCONFIG"
 sed -i '/CONFIG_LTO_CLANG_FULL/d' "$DEFCONFIG"
 
 # Apply tuning config
+echo "CONFIG_SCHED_BORE=y" >> "$DEFCONFIG"
+echo "CONFIG_SCHED_CASS=y" >> "$DEFCONFIG"
+echo "CONFIG_HZ_300=y" >> "$DEFCONFIG"
+echo "CONFIG_HZ=300" >> "$DEFCONFIG"
+echo "CONFIG_DEFAULT_WESTWOOD=y" >> "$DEFCONFIG"
+echo "CONFIG_DEFAULT_TCP_CONG="westwood"" >> "$DEFCONFIG"
 echo "CONFIG_LTO_CLANG=y" >> "$DEFCONFIG"
 echo "CONFIG_LTO_CLANG_THIN=y" >> "$DEFCONFIG"
 
