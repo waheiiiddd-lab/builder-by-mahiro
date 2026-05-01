@@ -55,7 +55,7 @@ on:
 env:
   MAN_DISABLE: true
   DEBIAN_FRONTEND: noninteractive
-  BASE_NAME: Altair
+  BASE_NAME: Focalors
   
   TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
   TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
@@ -85,7 +85,7 @@ jobs:
           fi
 
       - name: "Setup Swap 20GB"
-        uses:pierotofy/set-swap-space@master
+        uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 20
 
