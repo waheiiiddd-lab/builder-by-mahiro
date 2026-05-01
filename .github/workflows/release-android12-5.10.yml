@@ -17,23 +17,49 @@ jobs:
       LAST_BUILD: ${{ matrix.variant.LAST_BUILD }}
 
   release:
+    permissions:
+      contents: write
+
+    name: Create Unified Release
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Download Artifacts
+      - name: Checkout current repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Download All Artifacts
         uses: actions/download-artifact@v4
         with:
           path: release_files
-      - name: Flatten Artifacts
+
+      - name: Generate release tag
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          mkdir -p final_release
-          find release_files -name "*.zip" -exec cp {} final_release/ \;
-      - name: Create Release
+            RELEASE_TAG="5.10"
+
+            echo "Release tag: $RELEASE_TAG"
+            echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+
+      - name: Upload All Builds to release repo
         run: |
-          gh release create "Build-${{ github.run_number }}" \
-            --title "Anisphia Build ${{ github.run_number }}" \
+          gh release create "$RELEASE_TAG" \
+            --repo "$RELEASE_REPO" \
+            --title "5.10" \
             --notes-file "release.md" \
-            final_release/*
+            release_files/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Send notification to TG (Safe)
+        run: |
+            MESSAGE="📦 Build completed! [Click](https://github.com/${{ env.RELEASE_REPO }}/releases/tag/${{ env.RELEASE_TAG }})"
+            source functions.sh
+            send_msg "$MESSAGE"
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}

@@ -8,13 +8,13 @@ on:
         default: "kernel"
       VARIANT:
         type: string
-        default: "KSU"
+        default: "KSUS"
       KERNELNAME:
         type: string
-        default: "Altair"
+        default: "Focalors"
       KERNELBRANCH:
         type: string
-        default: "android12-5.10-staging"
+        default: "test"
       LAST_BUILD:
         type: string
         default: "false"
@@ -30,7 +30,7 @@ on:
           - "defconfig"
       VARIANT:
         description: kernel variants
-        default: "KSU"
+        default: "KSUS"
         type: choice
         options:
           - "VNL"
@@ -39,7 +39,7 @@ on:
       KERNELBRANCH:
         description: "Kernel source branch"
         required: true
-        default: "android12-5.10-staging"
+        default: "test"
         type: choice
         options:
           - lts
@@ -49,7 +49,7 @@ on:
           - android12-5.10-staging
       KERNELNAME:
         description: kernel Name
-        default: "Altair"
+        default: "Focalors"
         type: string
 
 env:
@@ -61,9 +61,9 @@ env:
   TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-  VARIANT: ${{ inputs.VARIANT || 'KSU' }}
-  KERNELNAME: ${{ inputs.KERNELNAME || 'Altair' }}
-  KERNELBRANCH: ${{ inputs.KERNELBRANCH || 'android12-5.10-staging' }}
+  VARIANT: ${{ inputs.VARIANT || 'KSUS' }}
+  KERNELNAME: ${{ inputs.KERNELNAME || 'Focalors' }}
+  KERNELBRANCH: ${{ inputs.KERNELBRANCH || 'test' }}
   TODO: ${{ inputs.TODO || 'kernel' }}
   LAST_BUILD: ${{ inputs.LAST_BUILD || 'false' }}
 
@@ -83,6 +83,11 @@ jobs:
           else
             echo "STATUS=RELEASE" >> $GITHUB_ENV
           fi
+
+      - name: "Setup Swap 20GB"
+        uses:pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 20
 
       - name: Install Dependencies
         run: |

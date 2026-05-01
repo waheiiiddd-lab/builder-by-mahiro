@@ -20,7 +20,7 @@ ANYKERNEL_REPO="https://github.com/rinnsakaguchi/AnyKernel3"
 ANYKERNEL_BRANCH="master"
 GKI_RELEASES_REPO="https://github.com/rinnsakaguchi/Anisphia-Release"
 CLANG_BRANCH=""
-CLANG_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/f60b8b55282f002f594f452ce22dfd6cf1fd7e3c/clang-r596125.tar.gz"
+CLANG_URL="https://github.com/moonooen/AOSP20/releases/download/v1.0/clang-r547379-qssi.tar.gz"
 
 make=$(command -v make)
 export make
@@ -157,23 +157,26 @@ else
 fi
 
 # Clean old values
-sed -i '/CONFIG_HZ/d' "$DEFCONFIG"
-sed -i '/CONFIG_HZ_250/d' "$DEFCONFIG"
-sed -i '/CONFIG_HZ_300/d' "$DEFCONFIG"
+sed -i '/CONFIG_HZ_/d' "$DEFCONFIG"
+sed -i '/CONFIG_HZ=/d' "$DEFCONFIG"
+sed -i '/CONFIG_DEFAULT_TCP_CONG/d' "$DEFCONFIG"
 sed -i '/CONFIG_DEFAULT_BBRPLUS/d' "$DEFCONFIG"
-sed -i '/CONFIG_LTO_CLANG/d' "$DEFCONFIG"
-sed -i '/CONFIG_LTO_CLANG_THIN/d' "$DEFCONFIG"
-sed -i '/CONFIG_LTO_CLANG_FULL/d' "$DEFCONFIG"
+sed -i '/CONFIG_DEFAULT_WESTWOOD/d' "$DEFCONFIG"
+sed -i '/# CONFIG_TCP_CONG_WESTWOOD is not set/d' "$DEFCONFIG"
+sed -i '/CONFIG_LTO_/d' "$DEFCONFIG"
 
-# Apply tuning config
-echo "CONFIG_SCHED_BORE=y" >> "$DEFCONFIG"
-echo "CONFIG_SCHED_CASS=y" >> "$DEFCONFIG"
-echo "CONFIG_HZ_300=y" >> "$DEFCONFIG"
-echo "CONFIG_HZ=300" >> "$DEFCONFIG"
+# Apply Custom HZ
+echo "CONFIG_HZ_250=y" >> "$DEFCONFIG"
+echo "CONFIG_HZ=250" >> "$DEFCONFIG"
+
+# Enable Westwood
+echo "CONFIG_TCP_CONG_WESTWOOD=y" >> "$DEFCONFIG"
 echo "CONFIG_DEFAULT_WESTWOOD=y" >> "$DEFCONFIG"
-echo "CONFIG_DEFAULT_TCP_CONG="westwood"" >> "$DEFCONFIG"
+echo 'CONFIG_DEFAULT_TCP_CONG="westwood"' >> "$DEFCONFIG"
+
+# Enable Full LTO
 echo "CONFIG_LTO_CLANG=y" >> "$DEFCONFIG"
-echo "CONFIG_LTO_CLANG_THIN=y" >> "$DEFCONFIG"
+echo "CONFIG_LTO_CLANG_FULL=y" >> "$DEFCONFIG"
 
 # set localversion
 if [[ $TODO == "kernel" ]]; then
