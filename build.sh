@@ -167,8 +167,14 @@ cd "$KSRC"
 # Variant setup
 DEFCONFIG="$DEFCONFIG_FILE"
 
+# Clean KSU
 sed -i '/CONFIG_KSU/d' "$DEFCONFIG"
 sed -i '/CONFIG_KSU_SUSFS/d' "$DEFCONFIG"
+sed -i '/source "drivers/kernelsu/Kconfig"/d' "drivers/Kconfig"
+sed -i '/obj-$(CONFIG_KSU) += kernelsu//d' "drivers/Makefile"
+
+rm -rf KernelSU
+rm -rf drivers/kernelsu
 
 if [ "$VARIANT" == "KSU" ] || [ "$VARIANT" == "SUSFS" ]; then
     # Patch KernelSU-Next
