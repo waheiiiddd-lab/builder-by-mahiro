@@ -11,8 +11,8 @@ else
     KERNEL_NAME="$KERNELNAME"
 fi
 
-USER="dev"
-HOST="celoxx"
+USER="zixine"
+HOST="elysium project"
 
 TIMEZONE="Asia/Jakarta"
 KERNEL_DEFCONFIG="gki_defconfig"
