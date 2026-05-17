@@ -19,7 +19,7 @@ KERNEL_DEFCONFIG="gki_defconfig"
 
 ANYKERNEL_REPO="https://github.com/waheiiiddd-lab/anykernel3"
 ANYKERNEL_BRANCH="main"
-GKI_RELEASES_REPO="https://github.com/rinnsakaguchi/Anisphia-Release"
+GKI_RELEASES_REPO="https://github.com/waheiiiddd-lab/builder-by-mahiro"
 CLANG_BRANCH=""
 
 source "$WORKDIR/functions.sh"
