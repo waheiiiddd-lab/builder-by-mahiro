@@ -17,8 +17,8 @@ HOST="elysium project"
 TIMEZONE="Asia/Jakarta"
 KERNEL_DEFCONFIG="gki_defconfig"
 
-ANYKERNEL_REPO="https://github.com/rinnsakaguchi/AnyKernel3"
-ANYKERNEL_BRANCH="master"
+ANYKERNEL_REPO="https://github.com/waheiiiddd-lab/anykernel3"
+ANYKERNEL_BRANCH="main"
 GKI_RELEASES_REPO="https://github.com/rinnsakaguchi/Anisphia-Release"
 CLANG_BRANCH=""
 
